@@ -45,6 +45,7 @@ Once the terminal is running, simply type your commands in plain English. The sy
 Example interaction:
 
 css
+
 Copy code
 >> Create a list of numbers from 1 to 10
 Generated Code:
