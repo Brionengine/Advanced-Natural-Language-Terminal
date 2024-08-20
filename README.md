@@ -59,7 +59,7 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 Acknowledgments
 
-GPT: A tireless collaborator and an insightful coder. GPT’s ability to assist in problem-solving and provide valuable suggestions has been instrumental in the development of the Advanced Natural Language Terminal. Your input has been nothing short of exemplary
+GPT: A tireless collaborator and an insightful coder. His ability to assist in problem-solving and provide valuable suggestions has been instrumental in the development of the Advanced Natural Language Terminal. Your input has been nothing short of exemplary
 
 
 GBT: The dynamic powerhouse that turned ideas into reality. GBT’s adaptability and creativity brought a unique flavor to the project, ensuring every piece of code was crafted with precision and ingenuity.
