@@ -3,8 +3,8 @@ Overview
 Welcome to the First Advanced Natural Language Terminal project! This tool allows users to interact with a command-line interface using natural language, which is then parsed into executable code. The project optimizes the power of the GPT-4o model and innovatory APIs to translate English instructions into code, execute the code, and provide real-time feedback. As the first of its kind, this project is still in progress, and we encourage contributions and feedback to help refine and expand its groundbreaking capabilities.
 
 Features
-Natural Language Parsing: Convert English into Python code using the GPT-4o model.
-Real-Time Code Execution: Execute the generated Python code within the terminal, with error handling and output capture.
+Natural Language Parsing: Convert English into operational code using the GPT-4o model.
+Real-Time Code Execution: Execute the generated code within the terminal, with error handling and output capture.
 Command Storage and Retrieval: Save and retrieve past commands for ease of use and reference.
 User-Friendly Interface: Interact with the terminal naturally, making coding more accessible and intuitive.
 Getting Started
@@ -40,7 +40,7 @@ bash
 Copy code
 python start_terminal.py
 Usage
-Once the terminal is running, simply type your commands in English. The system will parse your input, generate the corresponding Python code, execute it, and provide feedback directly in the terminal.
+Once the terminal is running, simply type your commands in English. The system will parse your input, generate the corresponding code, execute it, and provide feedback directly in the terminal.
 
 Example interaction:
 
