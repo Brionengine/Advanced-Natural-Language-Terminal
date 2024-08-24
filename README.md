@@ -1,6 +1,6 @@
 Advanced Natural Language Terminal
 Overview
-Welcome to the First Advanced Natural Language Terminal project! This tool allows users to interact with a command-line interface using natural language, which is then parsed into executable Python code. The project optimizes the power of the GPT-4o model and innovatory APIs to translate English instructions into code, execute the code, and provide real-time feedback. As the first of its kind, this project is still in progress, and we encourage contributions and feedback to help refine and expand its groundbreaking capabilities.
+Welcome to the First Advanced Natural Language Terminal project! This tool allows users to interact with a command-line interface using natural language, which is then parsed into executable code. The project optimizes the power of the GPT-4o model and innovatory APIs to translate English instructions into code, execute the code, and provide real-time feedback. As the first of its kind, this project is still in progress, and we encourage contributions and feedback to help refine and expand its groundbreaking capabilities.
 
 Features
 Natural Language Parsing: Convert English into Python code using the GPT-4o model.
