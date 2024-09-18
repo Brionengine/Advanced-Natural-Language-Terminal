@@ -52,11 +52,17 @@ Copy code
 Generated Code:
 numbers = list(range(1, 11))
 Execution Output:
-Contributing
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. Make sure to write tests for new features and maintain clear and concise documentation.
+Contributing:
 
-License
-This project is licensed under the MIT License. See the LICENSE file for details.
+Contributions are welcome! Whether it's suggesting new features, adding support for new LLMs, or enhancing learning algorithms, your input can help drive the project forward. Please fork the repository and submit a pull request with your proposed changes. For major changes, please open an issue first to discuss what you would like to modify.
+
+License:
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Contact:
+
+For questions or suggestions, feel free to open an issue on GitHub or contact the project maintainers.
 
 Acknowledgments
 
