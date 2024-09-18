@@ -1,0 +1,36 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Brion Assistant</title>
+    <style>
+        /* Basic styling for the chat interface */
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="message-display"></div>
+        <input type="text" id="message-input" placeholder="Type your code request...">
+        <button id="send-button">Send</button>
+    </div>
+    <script>
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        
+        function sendMessage() {
+            const input = document.getElementById('message-input').value;
+            const display = document.getElementById('message-display');
+            display.innerHTML += `<div class="user-message">${input}</div>`;
+            
+            fetch('/generate_code', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message: input})
+            })
+            .then(response => response.json())
+            .then(data => {
+                display.innerHTML += `<div class="assistant-message"><pre>${data.code}</pre></div>`;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+self.output_box.insert(tk.END, "Assistant:\n")
+self.output_box.insert(tk.END, code + "\n\n", "code")
+
+# Apply the 'code' tag to style code blocks
+self.output_box.tag_config('code', font=('Courier', 10), foreground='blue')
