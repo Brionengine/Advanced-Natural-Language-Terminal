@@ -30,7 +30,7 @@ class Brion:
     - Token usage tracking
     """
 
-    VERSION = "2.0.0"
+    VERSION = "2.0.22"
     DEFAULT_MODEL = "gpt-4o"
     MAX_HISTORY = 50
 
