@@ -1,2 +1,11 @@
-openai
-tkinter
+# LLM backends. Both are optional at runtime — the terminal falls back to its
+# offline provider when neither is installed. Install whichever you intend to use.
+anthropic>=0.40.0
+openai>=1.0.0
+
+# Testing
+pytest>=8.0.0
+
+# NOTE: tkinter is part of the Python standard library and cannot be installed
+# from PyPI. On Debian/Ubuntu install the system package instead:
+#   sudo apt install python3-tk
