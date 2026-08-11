@@ -1,6 +1,11 @@
+from __future__ import annotations
+
 import tkinter as tk
 from tkinter import scrolledtext
-import openai
+try:
+    import openai
+except ImportError:  # optional dependency: pip install openai
+    openai = None
 
 class BrionApp:
     def __init__(self, root):

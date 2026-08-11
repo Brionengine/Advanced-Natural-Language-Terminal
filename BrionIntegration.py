@@ -1,5 +1,5 @@
 import tkinter as tk
-from brion_integration import Brion
+from brion import Brion
 from tkinter import scrolledtext
 
 class BrionApp:

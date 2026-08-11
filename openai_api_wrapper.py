@@ -1,4 +1,9 @@
-import openai
+from __future__ import annotations
+
+try:
+    import openai
+except ImportError:  # optional dependency: pip install openai
+    openai = None
 
 def correct_code_with_llm(code, error_message):
     prompt = f"""

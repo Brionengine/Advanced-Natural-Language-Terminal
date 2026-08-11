@@ -46,6 +46,9 @@ def verify_api_key(api_key, module_name):
     # Basic check, replace with actual verification logic if needed
     return True if api_key else False
 
-# Load configuration and initialize modules
-config = load_config()
-initialize_modules(config)
+# Load configuration and initialize modules.
+# Guarded so that importing this module does not require a config.txt to
+# exist -- previously a bare import raised FileNotFoundError.
+if __name__ == "__main__":
+    config = load_config()
+    initialize_modules(config)

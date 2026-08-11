@@ -76,3 +76,9 @@ Charlie for the original engineering insights that helped bring this idea to lif
 
 
 Anonymous Collaborators: A special thanks to the collective group of friends that kept it fun, helped, and supported us.
+
+## Optional dependencies
+
+This repository imports without the heavy scientific stack (numpy, torch,
+tensorflow, qiskit, cirq, ...). Clone it and run it; install only the packages
+the parts you actually use need. See [OPTIONAL_DEPENDENCIES.md](OPTIONAL_DEPENDENCIES.md).

@@ -1,5 +1,10 @@
+from __future__ import annotations
+
 from flask import Flask, render_template, request, jsonify
-import openai
+try:
+    import openai
+except ImportError:  # optional dependency: pip install openai
+    openai = None
 
 app = Flask(__name__)
 
