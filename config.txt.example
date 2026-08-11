@@ -1,0 +1,8 @@
+# Copy to config.txt and replace the placeholders with real keys.
+# Read by load_config() in api_key_generation.py.
+[API_KEYS]
+GPT-4o = your_gpt4o_api_key_here
+FileSystemOps = your_filesystem_ops_api_key_here
+SystemMonitor = your_system_monitor_api_key_here
+Networking = your_networking_api_key_here
+ExternalAPI = your_external_api_key_here
