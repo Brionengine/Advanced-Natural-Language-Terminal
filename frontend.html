@@ -16,11 +16,22 @@
     <script>
         document.getElementById('send-button').addEventListener('click', sendMessage);
         
+        // Messages are added with textContent, never innerHTML: generated code
+        // routinely contains markup, and innerHTML would execute it.
+        function append(display, className, text, pre) {
+            const div = document.createElement('div');
+            div.className = className;
+            const body = document.createElement(pre ? 'pre' : 'span');
+            body.textContent = text;
+            div.appendChild(body);
+            display.appendChild(div);
+        }
+
         function sendMessage() {
             const input = document.getElementById('message-input').value;
             const display = document.getElementById('message-display');
-            display.innerHTML += `<div class="user-message">${input}</div>`;
-            
+            append(display, 'user-message', input, false);
+
             fetch('/generate_code', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -28,8 +39,13 @@
             })
             .then(response => response.json())
             .then(data => {
-                display.innerHTML += `<div class="assistant-message"><pre>${data.code}</pre></div>`;
-            });
+                append(display, 'assistant-message', data.error || data.code, true);
+                if (data.missing_packages && data.missing_packages.length) {
+                    append(display, 'assistant-message',
+                           'Missing packages: ' + data.missing_packages.join(', '), false);
+                }
+            })
+            .catch(err => append(display, 'assistant-message', 'Request failed: ' + err, false));
         }
     </script>
 </body>

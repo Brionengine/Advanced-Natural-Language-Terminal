@@ -1,0 +1,17 @@
+# Quantum targets for the NLP engine: pip install -r requirements-quantum.txt
+# Optional — only /qrun and the qiskit/openqasm syntax checks need these.
+#
+# Pinned to versions verified together. qiskit 2.6 / qiskit-aer 0.18 fail to
+# import on some Linux and WSL kernels ("cannot allocate memory in static TLS
+# block") when loaded alongside pyqpanda3, whose OpenMP runtime competes for
+# the same TLS space.
+qiskit==2.5.2
+qiskit-aer==0.17.2
+numpy==2.5.3
+
+# Origin Quantum hardware and cloud simulators (needs ORIGIN_QC_API_KEY).
+pyqpanda3>=0.5.0
+
+# Noisy simulation with real IBM device calibrations (fake:<device>) and IBM
+# hardware. Used through Brion's Quantum Tools when it is installed.
+qiskit-ibm-runtime>=0.40

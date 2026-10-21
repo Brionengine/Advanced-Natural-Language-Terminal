@@ -71,14 +71,28 @@ class AnthropicProvider(LLMProvider):
     Claude backend via the official `anthropic` SDK.
 
     The system prompt is a top-level parameter here rather than a message, and
-    `max_tokens` bounds thinking plus visible text together — Claude Opus 5
-    thinks by default, so a limit sized only for the answer can truncate it.
+    `max_tokens` bounds thinking plus visible text together — Claude Opus 5.5
+    always thinks, so a limit sized only for the answer can truncate it.
     Sampling parameters are deliberately not sent: they are rejected outright
     on this model generation.
+
+    Requests stream, so a long generation cannot hit the HTTP timeout, and
+    effort is set explicitly: Opus 5.5 defaults to "medium", which is low for
+    code generation. BRION_EFFORT overrides it ("none" omits the field, for
+    older models that reject it).
     """
 
     name = "anthropic"
-    default_model = "claude-opus-5"
+    default_model = "claude-opus-5-5"
+    default_effort = "high"
+
+    # Models that accept server-side refusal fallback. On a policy decline the
+    # API re-runs the request on Anthropic's recommended fallback model inside
+    # the same call, instead of handing back an empty refusal.
+    FALLBACK_MODELS = frozenset({
+        "claude-fable-5-1", "claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5",
+    })
+    FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
     @classmethod
     def is_available(cls) -> bool:
@@ -98,14 +112,23 @@ class AnthropicProvider(LLMProvider):
                 error="anthropic SDK not installed (pip install anthropic)",
             )
 
+        params: Dict[str, Any] = {
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "system": system,
+            "messages": messages,
+        }
+        effort = os.environ.get("BRION_EFFORT", self.default_effort).strip().lower()
+        if effort and effort != "none":
+            params["output_config"] = {"effort": effort}
+        if self.model in self.FALLBACK_MODELS:
+            params["betas"] = [self.FALLBACK_BETA]
+            params["fallbacks"] = "default"
+
         try:
             client = anthropic.Anthropic()
-            response = client.messages.create(
-                model=self.model,
-                max_tokens=max_tokens,
-                system=system,
-                messages=messages,
-            )
+            with client.beta.messages.stream(**params) as stream:
+                response = stream.get_final_message()
         except Exception as exc:  # noqa: BLE001 - surfaced to the caller as text
             logger.error("Anthropic completion failed: %s", exc)
             return CompletionResult(
@@ -130,8 +153,10 @@ class AnthropicProvider(LLMProvider):
             block.text for block in response.content
             if getattr(block, "type", None) == "text"
         )
+        # After a fallback the answering model differs from the requested one.
         return CompletionResult(
-            text=text, provider=self.name, model=self.model,
+            text=text, provider=self.name,
+            model=getattr(response, "model", None) or self.model,
             tokens_used=total, raw_usage=usage,
         )
 

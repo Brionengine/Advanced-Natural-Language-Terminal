@@ -1,7 +1,10 @@
 # LLM backends. Both are optional at runtime — the terminal falls back to its
 # offline provider when neither is installed. Install whichever you intend to use.
-anthropic>=0.40.0
+anthropic>=1.17.0  # streaming + server-side refusal fallback
 openai>=1.0.0
+
+# Browser front end (Web_based_interface.py) — optional.
+flask>=3.0
 
 # Testing
 pytest>=8.0.0
@@ -9,3 +12,5 @@ pytest>=8.0.0
 # NOTE: tkinter is part of the Python standard library and cannot be installed
 # from PyPI. On Debian/Ubuntu install the system package instead:
 #   sudo apt install python3-tk
+
+# Quantum targets (/qrun, Origin Quantum, IBM): see requirements-quantum.txt
