@@ -1,5 +1,5 @@
 """
-Brion Quantum - Advanced NLP Terminal Core v2.1
+Brion Quantum - Advanced NLP Terminal Core v3.0
 Multi-provider LLM integration with conversation memory,
 code generation, error correction, and command history.
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 class Brion:
     """
-    Brion NLP Terminal v2.1
+    Brion NLP Terminal v3.0
 
     Advanced natural language code generation and correction engine.
     Features:
@@ -30,7 +30,7 @@ class Brion:
     - Token usage tracking
     """
 
-    VERSION = "2.1.0"
+    VERSION = "3.0.0"
     MAX_HISTORY = 50
     DEFAULT_MAX_TOKENS = 16000
 
@@ -65,13 +65,19 @@ class Brion:
 
     # -- Generation ---------------------------------------------------------
 
-    def generate_code(self, user_input: str) -> str:
-        """Generate code or a response from natural language input."""
+    def generate_code(self, user_input: str, system: Optional[str] = None) -> str:
+        """
+        Generate code or a response from natural language input.
+
+        `system` overrides the session's system prompt for this one call, which
+        is how the NLP engine targets a specific language without disturbing
+        the conversation memory shared across languages.
+        """
         self.conversation.append({"role": "user", "content": user_input})
         self._trim_history()
 
         result = self.provider.complete(
-            system=self.system_prompt,
+            system=system or self.system_prompt,
             messages=self.conversation,
             max_tokens=self.DEFAULT_MAX_TOKENS,
         )
@@ -96,7 +102,8 @@ class Brion:
         self._record("generate", user_input, result)
         return result.text
 
-    def correct_code(self, code: str, error_message: str) -> str:
+    def correct_code(self, code: str, error_message: str,
+                     language: str = "Python") -> str:
         """
         Attempt to correct code that produced an error.
 
@@ -105,10 +112,10 @@ class Brion:
         backend cannot help — callers write this straight back to a file.
         """
         prompt = (
-            f"The following Python code contains an error:\n\n"
-            f"```python\n{code}\n```\n\n"
+            f"The following {language} code contains an error:\n\n"
+            f"```{language.lower()}\n{code}\n```\n\n"
             f"The error message is:\n{error_message}\n\n"
-            f"Please provide ONLY the corrected Python code, no explanations."
+            f"Please provide ONLY the corrected {language} code, no explanations."
         )
 
         result = self.provider.complete(

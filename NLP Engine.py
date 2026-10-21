@@ -1,13 +1,18 @@
-def parse_natural_language(input_text):
-    try:
-        response = openai.Completion.create(
-            engine="gpt-4o",  # Using GPT-4o as the engine
-            prompt=f"Translate this English text to Python code: {input_text}",
-            max_tokens=150,
-            temperature=0.5,
-            top_p=1.0
-        )
-        return response.choices[0].text.strip()
-    except Exception as e:
-        print(f"Error during NLP parsing: {e}")
-        return None
+"""
+The original NLP engine entry point, now backed by nlp_engine.py.
+
+`parse_natural_language()` keeps its signature but no longer calls
+`openai.Completion.create()`, which was removed in openai 1.0. It goes through
+the multi-provider engine instead (Claude, OpenAI, or the offline fallback).
+
+Run this file directly to start the terminal.
+"""
+
+from nlp_engine import parse_natural_language  # noqa: F401 - re-exported
+
+if __name__ == "__main__":
+    import sys
+
+    from start_terminal import main
+
+    sys.exit(main())

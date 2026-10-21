@@ -6,6 +6,9 @@ not installed in CI, and these tests assert that this degrades cleanly rather
 than raising at import.
 """
 
+import sys
+import types
+
 import pytest
 
 import providers
@@ -48,7 +51,7 @@ def test_offline_completion_survives_an_empty_conversation():
 # -- Availability detection -------------------------------------------------
 
 
-def test_anthropic_unavailable_without_sdk(monkeypatch):
+def test_anthropic_unavailable_without_credentials(monkeypatch):
     monkeypatch.setattr(providers, "_has_anthropic_profile", lambda: False)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
 
@@ -68,14 +71,22 @@ def test_available_providers_always_includes_offline():
 # -- Missing SDKs degrade to an error result, never an exception -------------
 
 
-def test_anthropic_without_sdk_returns_error_result():
+# A None entry in sys.modules makes `import x` raise ImportError, which
+# simulates an absent SDK even on a machine that has it installed.
+
+
+def test_anthropic_without_sdk_returns_error_result(monkeypatch):
+    monkeypatch.setitem(sys.modules, "anthropic", None)
+
     result = AnthropicProvider().complete("sys", [{"role": "user", "content": "hi"}])
 
     assert result.ok is False
     assert "anthropic" in result.error
 
 
-def test_openai_without_sdk_returns_error_result():
+def test_openai_without_sdk_returns_error_result(monkeypatch):
+    monkeypatch.setitem(sys.modules, "openai", None)
+
     result = OpenAIProvider().complete("sys", [{"role": "user", "content": "hi"}])
 
     assert result.ok is False
@@ -131,7 +142,7 @@ def test_model_override_is_applied():
 
 
 def test_default_models_are_set():
-    assert AnthropicProvider().model == "claude-opus-5"
+    assert AnthropicProvider().model == "claude-opus-5-5"
     assert OpenAIProvider().model == "gpt-4o"
 
 
@@ -144,3 +155,94 @@ def test_completion_result_defaults():
     assert result.tokens_used == 0
     assert result.refused is False
     assert result.ok is True
+
+
+# -- Anthropic request shape ------------------------------------------------
+
+
+class FakeStream:
+    def __init__(self, response):
+        self.response = response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def get_final_message(self):
+        return self.response
+
+
+def fake_anthropic(monkeypatch, response):
+    """Install a stand-in `anthropic` module that records stream() params."""
+    calls = []
+
+    class Messages:
+        def stream(self, **params):
+            calls.append(params)
+            return FakeStream(response)
+
+    class Client:
+        def __init__(self):
+            self.beta = types.SimpleNamespace(messages=Messages())
+
+    monkeypatch.setitem(sys.modules, "anthropic", types.SimpleNamespace(Anthropic=Client))
+    return calls
+
+
+def message(text="ok", stop_reason="end_turn", model="claude-opus-5-5"):
+    return types.SimpleNamespace(
+        content=[types.SimpleNamespace(type="text", text=text)],
+        stop_reason=stop_reason, model=model,
+        usage=types.SimpleNamespace(input_tokens=3, output_tokens=4),
+    )
+
+
+def test_anthropic_streams_with_effort_and_fallback(monkeypatch):
+    monkeypatch.delenv("BRION_EFFORT", raising=False)
+    calls = fake_anthropic(monkeypatch, message())
+
+    result = AnthropicProvider().complete("sys", [{"role": "user", "content": "hi"}])
+
+    assert result.text == "ok" and result.tokens_used == 7
+    params = calls[0]
+    assert params["model"] == "claude-opus-5-5"
+    assert params["system"] == "sys"
+    assert params["output_config"] == {"effort": "high"}
+    assert params["fallbacks"] == "default"
+    assert params["betas"] == [AnthropicProvider.FALLBACK_BETA]
+
+
+def test_anthropic_skips_fallback_for_models_without_it(monkeypatch):
+    calls = fake_anthropic(monkeypatch, message(model="claude-haiku-4-5"))
+
+    AnthropicProvider(model="claude-haiku-4-5").complete("s", [{"role": "user", "content": "x"}])
+
+    assert "fallbacks" not in calls[0] and "betas" not in calls[0]
+
+
+def test_anthropic_effort_can_be_omitted(monkeypatch):
+    monkeypatch.setenv("BRION_EFFORT", "none")
+    calls = fake_anthropic(monkeypatch, message())
+
+    AnthropicProvider().complete("s", [{"role": "user", "content": "x"}])
+
+    assert "output_config" not in calls[0]
+
+
+def test_anthropic_reports_the_model_that_answered(monkeypatch):
+    """After a server-side fallback, another model wrote the reply."""
+    fake_anthropic(monkeypatch, message(model="claude-opus-4-8"))
+
+    result = AnthropicProvider().complete("s", [{"role": "user", "content": "x"}])
+
+    assert result.model == "claude-opus-4-8"
+
+
+def test_anthropic_refusal_is_flagged(monkeypatch):
+    fake_anthropic(monkeypatch, message(text="", stop_reason="refusal"))
+
+    result = AnthropicProvider().complete("s", [{"role": "user", "content": "x"}])
+
+    assert result.refused is True and result.ok is False
